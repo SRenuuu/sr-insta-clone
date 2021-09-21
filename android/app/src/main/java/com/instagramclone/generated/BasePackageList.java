@@ -1,4 +1,4 @@
-package com.instagramclone.generated;
+package com.ijse.srg.insta.generated;
 
 import java.util.Arrays;
 import java.util.List;

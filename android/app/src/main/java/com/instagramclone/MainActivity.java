@@ -1,4 +1,4 @@
-package com.instagramclone;
+package com.ijse.srg.insta;
 
 import android.os.Bundle;
 
