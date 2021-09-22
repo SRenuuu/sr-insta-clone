@@ -8,17 +8,17 @@ import Login from "./src/Login";
 
 const theme = {
   ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#405DE6",
-    accent: "#405DE6",
-  },
+  // colors: {
+  //   ...DefaultTheme.colors,
+  //   primary: "#405DE6",
+  //   accent: "#405DE6",
+  // },
 };
 
 const Main = () => {
   return (
-    <PaperProvider theme={theme}>
-      <Login />
+    <PaperProvider>
+      <App />
     </PaperProvider>
   );
 };
