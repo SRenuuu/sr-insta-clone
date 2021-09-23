@@ -49,6 +49,12 @@ const Styles = StyleSheet.create({
     textTransform: "none",
   },
 
+  textPrimaryWhite: {
+    fontSize: 14,
+    textTransform: "none",
+    color: "white",
+  },
+
   textSecondary: {
     marginTop: 5,
     textAlign: "center",
@@ -76,6 +82,8 @@ const Styles = StyleSheet.create({
   textLink: {
     color: "#125688",
   },
+
+  postCard: {},
 });
 
 export default Styles;

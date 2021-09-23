@@ -9,6 +9,8 @@ import Toast, {
   InfoToast,
 } from "react-native-toast-message";
 import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
+import Home from "./src/Home";
 
 const toastConfig = {
   error: (props) => (
@@ -51,28 +53,31 @@ const toastConfig = {
 const App = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [userData, setUserData] = useState();
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
+  const fetchUserData = async () => {
+    const response = firestore().collection("users").doc(user.uid);
+    const data = await response.get();
+    if (data) {
+      setUserData(data.data());
+    }
+  };
+
   // Handle user state changes
   const onAuthStateChanged = (user) => {
     setUser(user);
     if (initializing) setInitializing(false);
-  };
-
-  const signOutUser = () => {
-    auth()
-      .signOut()
-      .then(() => {
-        console.log("User signed out!");
-        Toast.show({
-          type: "success",
-          text1: "User signed out!",
-        });
-      });
   };
 
   if (initializing) return null;
@@ -92,21 +97,70 @@ const App = () => {
     );
   }
 
+  // firestore()
+  //   .collection("users")
+  //   .doc(user.uid)
+  //   .get()
+
+  //   .then((data) => {
+  //     if (data) {
+  //       return null;
+  //     }
+  //   });
+
+  // async function getDocument(db) {
+  //   // [START firestore_data_get_as_map]
+  //   const cityRef = db.collection("users").doc(uid);
+  //   const doc = await cityRef.get();
+  //   if (!doc.exists) {
+  //     console.log("No such document!");
+  //   } else {
+  //     console.log("Document data:", doc.data());
+  //     setUserData(doc.data());
+  //   }
+  //   // [END firestore_data_get_as_map]
+  // }
+
+  // getDocument(firestore());
+
+  // const getData = async () => {
+  //   const cityRef = firestore().collection("users").doc(uid);
+  //   const doc = await cityRef.get();
+  //   if (!doc.exists) {
+  //     console.log("No such document!");
+  //   } else {
+  //     console.log("Document data:", doc.data());
+  //   }
+  // };
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: 'music', title: 'Music', icon: 'queue-music' },
+    { key: 'albums', title: 'Albums', icon: 'album' },
+    { key: 'recents', title: 'Recents', icon: 'history' },
+  ]);
+
+  const renderScene = BottomNavigation.SceneMap({
+    music: MusicRoute,
+    albums: AlbumsRoute,
+    recents: RecentsRoute,
+  });
+
   return (
     <>
-      <View style={styles.container}>
-        <Text style={{ marginBottom: 20, textAlign: "center", fontSize: 18 }}>
-          Welcome&nbsp;
-          <Text style={{ fontWeight: "bold" }}>{user.email}</Text>
-        </Text>
-        <Button
-          contentStyle={styles.buttonContent}
-          mode="contained"
-          title="Sign out"
-          onPress={() => signOutUser()}
-        ></Button>
-      </View>
-      <Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
+      <NativeRouter>
+        <View style={styles.containerFluid}>
+          <Route path="/" component={() => <Home userData={userData} />} />
+          <Route path="/my-profile" component={Signup} />
+          <Route path="/messaging" component={Signup} />
+        </View>
+      </NativeRouter>
+
+      <Toast
+        config={toastConfig}
+        ref={(ref) => Toast.setRef(ref)}
+        style={styles.elevatedElement}
+      />
     </>
   );
 };
@@ -116,6 +170,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     marginHorizontal: 30,
+  },
+
+  containerFluid: {
+    flex: 1,
+    justifyContent: "center",
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
+  },
+
+  elevatedElement: {
+    zIndex: 9, // ios
+    elevation: 9, // android
   },
 });
 
