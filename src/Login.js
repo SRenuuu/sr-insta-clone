@@ -1,6 +1,18 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import { Button, TextInput, Caption } from "react-native-paper";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  StatusBar,
+} from "react-native";
+import {
+  Button,
+  TextInput,
+  Caption,
+  ActivityIndicator,
+} from "react-native-paper";
 import { NativeRouter, Route, Link } from "react-router-native";
 import styles from "./assets/styles";
 import auth from "@react-native-firebase/auth";
@@ -9,8 +21,13 @@ import Toast from "react-native-toast-message";
 const Login = () => {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [isValidated, setIsValidated] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loginUser = () => {
+    setIsValidated(true);
+    setIsLoading(true);
+
     if (username && password) {
       auth()
         .signInWithEmailAndPassword(username, password)
@@ -24,9 +41,8 @@ const Login = () => {
           });
         })
         .catch((error) => {
+          setIsLoading(false);
           if (error.code === "auth/invalid-email") {
-            console.log("That email address is invalid!");
-
             Toast.show({
               type: "info",
               text1: "Invalid email",
@@ -35,8 +51,6 @@ const Login = () => {
           }
 
           if (error.code === "auth/user-not-found") {
-            console.log("User not found!");
-
             Toast.show({
               type: "error",
               text1: "User not found",
@@ -44,8 +58,6 @@ const Login = () => {
           }
 
           if (error.code === "auth/wrong-password") {
-            console.log("The password is incorrect!");
-
             Toast.show({
               type: "error",
               text1: "Wrong password",
@@ -55,9 +67,20 @@ const Login = () => {
             setPassword("");
           }
 
+          if (error.code === "auth/too-many-requests") {
+            Toast.show({
+              type: "error",
+              text1: "Too many requests",
+              text2: "User login suspended, please try again later",
+            });
+
+            setPassword("");
+          }
+
           console.error(error);
         });
     } else {
+      setIsLoading(false);
       Toast.show({
         type: "error",
         text1: "Invalid inputs",
@@ -68,46 +91,57 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar
+        animated={true}
+        backgroundColor="#fafafa"
+        barStyle="dark-content"
+      />
       <View style={{ alignItems: "center", marginBottom: 25 }}>
         <Image
           source={require("./assets/images/instagram-text-logo.png")}
           style={{ height: 52, width: 180 }}
         />
       </View>
-
       <TextInput
         style={styles.textInput}
         label="Username"
         value={username}
         mode="outlined"
+        error={isValidated && !username}
         onChangeText={setUsername}
         theme={{ colors: { primary: "#125688" } }}
       />
-
       <TextInput
         style={styles.textInput}
         label="Password"
         secureTextEntry={true}
         value={password}
         mode="outlined"
+        error={isValidated && !password}
         onChangeText={setPassword}
         theme={{ colors: { primary: "#125688" } }}
       />
-
-      <Button
-        style={styles.button}
-        contentStyle={styles.buttonContent}
-        mode="contained"
-        onPress={() => loginUser()}
-      >
-        <Text style={styles.textPrimary}>Log in</Text>
-      </Button>
-
+      {isLoading ? (
+        <ActivityIndicator
+          animating={true}
+          color="#458eff"
+          size={32}
+          style={{ marginTop: 17, marginBottom: 18 }}
+        />
+      ) : (
+        <Button
+          style={styles.button}
+          contentStyle={styles.buttonContent}
+          mode="contained"
+          onPress={() => loginUser()}
+        >
+          <Text style={styles.textPrimaryWhite}>Log in</Text>
+        </Button>
+      )}
       <Text style={styles.textSecondary}>
         Forgotten your login details?
         <Text style={styles.textLink}> Get help with logging in.</Text>
       </Text>
-
       <View style={styles.hrContainer}>
         <View style={styles.hr} />
         <View>
