@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  StatusBar,
 } from "react-native";
 import {
   Button,
@@ -12,10 +10,10 @@ import {
   Caption,
   ActivityIndicator,
 } from "react-native-paper";
-import { NativeRouter, Route, Link } from "react-router-native";
+import { Link } from "react-router-native";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-import styles from "./assets/styles";
+import styles from "../assets/styles";
 import Toast from "react-native-toast-message";
 
 const Signup = () => {
@@ -100,11 +98,6 @@ const Signup = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        animated={true}
-        backgroundColor="#fafafa"
-        barStyle="dark-content"
-      />
       <TextInput
         style={styles.textInput}
         label="Full Name"
