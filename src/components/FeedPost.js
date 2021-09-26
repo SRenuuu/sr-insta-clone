@@ -54,7 +54,7 @@ const FeedPost = (props) => {
         source={{
           uri: post.postImageURL,
         }}
-        style={{ height: 250 }}
+        style={{ height: 300 }}
       />
       <Card.Actions style={{ paddingBottom: 3, paddingTop: 6 }}>
         {isLikedState ? (
