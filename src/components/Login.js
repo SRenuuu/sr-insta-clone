@@ -1,20 +1,8 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  StatusBar,
-} from "react-native";
-import {
-  Button,
-  TextInput,
-  Caption,
-  ActivityIndicator,
-} from "react-native-paper";
-import { NativeRouter, Route, Link } from "react-router-native";
-import styles from "./assets/styles";
+import { Text, View, TouchableOpacity, Image } from "react-native";
+import { Button, TextInput, ActivityIndicator } from "react-native-paper";
+import { Link } from "react-router-native";
+import styles from "../assets/styles";
 import auth from "@react-native-firebase/auth";
 import Toast from "react-native-toast-message";
 
@@ -91,24 +79,21 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        animated={true}
-        backgroundColor="#fafafa"
-        barStyle="dark-content"
-      />
       <View style={{ alignItems: "center", marginBottom: 25 }}>
         <Image
-          source={require("./assets/images/instagram-text-logo.png")}
+          source={require("../assets/images/instagram-text-logo.png")}
           style={{ height: 52, width: 180 }}
         />
       </View>
       <TextInput
         style={styles.textInput}
-        label="Username"
+        label="Email address"
         value={username}
         mode="outlined"
         error={isValidated && !username}
         onChangeText={setUsername}
+        textContentType="emailAddress"
+        autoCompleteType="email"
         theme={{ colors: { primary: "#125688" } }}
       />
       <TextInput
@@ -119,6 +104,8 @@ const Login = () => {
         mode="outlined"
         error={isValidated && !password}
         onChangeText={setPassword}
+        textContentType="password"
+        autoCompleteType="password"
         theme={{ colors: { primary: "#125688" } }}
       />
       {isLoading ? (
