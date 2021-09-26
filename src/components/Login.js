@@ -1,16 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, Image } from "react-native";
 import { Button, TextInput, ActivityIndicator } from "react-native-paper";
 import { Link } from "react-router-native";
 import styles from "../assets/styles";
 import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import Toast from "react-native-toast-message";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 
 const Login = () => {
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [isValidated, setIsValidated] = React.useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isValidated, setIsValidated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    console.log("Received user info");
+    if (userInfo) {
+      console.log(userInfo);
+    }
+
+    return () => {
+      setUserInfo(null);
+    };
+  }, [userInfo]);
 
   const loginUser = () => {
     setIsValidated(true);
@@ -21,6 +39,8 @@ const Login = () => {
         .signInWithEmailAndPassword(username, password)
         .then(() => {
           console.log("User signed in sucessfully!");
+          setUsername("");
+          setPassword("");
 
           Toast.show({
             type: "success",
@@ -74,6 +94,50 @@ const Login = () => {
         text1: "Invalid inputs",
         text2: "Please check the input fields",
       });
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      await GoogleSignin.hasPlayServices();
+      // const userInfo = await GoogleSignin.signIn();
+      // setUserInfo(userInfo);
+
+      // Get the users ID token
+      const { idToken } = await GoogleSignin.signIn();
+
+      // Create a Google credential with the token
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      // Sign-in the user with the credential
+      const googleUser = auth().signInWithCredential(googleCredential);
+
+      return googleUser;
+    } catch (error) {
+      setIsLoading(false);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Toast.show({
+          type: "error",
+          text1: "Sign in cancelled",
+          text2: "User cancelled the Google sign in process",
+        });
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Toast.show({
+          type: "info",
+          text1: "Process in progress",
+        });
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Toast.show({
+          type: "error",
+          text1: "Google Play Services not available",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Oops, that didn't work. Please try again.",
+        });
+      }
     }
   };
 
@@ -136,6 +200,26 @@ const Login = () => {
         </View>
         <View style={styles.hr} />
       </View>
+
+      <View
+        style={{
+          marginTop: 5,
+          marginBottom: 10,
+          justifyContent: "center",
+          alignContent: "center",
+          alignItems: "center",
+          flexDirection: "row",
+        }}
+      >
+        <GoogleSigninButton
+          style={{ width: 192, height: 50 }}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={signInWithGoogle}
+          disabled={isLoading}
+        />
+      </View>
+
       {/* <Link to="/signup" underlayColor="#f0f4f7">
         <Button
           style={styles.button}
@@ -146,14 +230,23 @@ const Login = () => {
           Register
         </Button>
       </Link> */}
-      <Link
-        to="/signup"
-        component={TouchableOpacity}
-        activeOpacity={0.8}
-        style={styles.touchable}
-      >
-        <Text style={styles.textPrimary}>Register</Text>
-      </Link>
+      <View style={styles.hrContainer}>
+        <View style={styles.hr} />
+        <View>{/* <Text style={styles.hrText}>OR</Text> */}</View>
+        <View style={styles.hr} />
+      </View>
+
+      <View style={{ marginVertical: 10 }}>
+        <Link
+          to="/signup"
+          disabled={isLoading}
+          component={TouchableOpacity}
+          activeOpacity={0.8}
+          style={styles.touchable}
+        >
+          <Text style={styles.textPrimary}>Register</Text>
+        </Link>
+      </View>
     </View>
   );
 };

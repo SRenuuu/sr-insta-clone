@@ -30,11 +30,21 @@ const Profile = () => {
       .signOut()
       .then(() => {
         console.log("User signed out!");
+        setUserData(null);
         Toast.show({
           type: "success",
           text1: "User signed out!",
         });
       });
+
+    // signOut = async () => {
+    //   try {
+    //     await GoogleSignin.signOut();
+    //     this.setState({ user: null }); // Remember to remove the user from your app's state as well
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // };
   };
 
   return (

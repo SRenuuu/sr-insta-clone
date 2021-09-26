@@ -138,7 +138,8 @@ const Styles = StyleSheet.create({
   },
 
   textSecondary: {
-    marginTop: 5,
+    marginTop: 10,
+    marginBottom: 10,
     textAlign: "center",
     fontSize: 12,
     color: "#90949c",

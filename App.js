@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Button,
-  SafeAreaView,
-  StatusBar,
-} from "react-native";
-import { NativeRouter, Route, Link } from "react-router-native";
+import { StyleSheet, View, SafeAreaView, StatusBar } from "react-native";
+import { NativeRouter, Route } from "react-router-native";
 import { BottomNavigation } from "react-native-paper";
 import Login from "./src/components/Login";
 import Signup from "./src/components/Signup";
@@ -20,9 +13,14 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import Home from "./src/components/Home";
 import NewPost from "./src/components/NewPost";
-import Icon from "react-native-vector-icons/Entypo";
 import Network from "./src/components/Network";
 import Profile from "./src/components/Profile";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
+GoogleSignin.configure({
+  webClientId:
+    "65102243470-dpdr4c9mbge0hm25ddbu8gprdg2ji8ln.apps.googleusercontent.com",
+});
 
 const toastConfig = {
   error: (props) => (
@@ -118,20 +116,52 @@ const App = () => {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  // useEffect(() => {
-  //   if (user) {
-  //     fetchUserData();
-  //   }
-  //   return setUserData([]);
-  // }, [user]);
+  useEffect(() => {
+    if (user) {
+      console.log("===");
+      console.log(user);
 
-  const fetchUserData = async () => {
-    const response = firestore().collection("users").doc(user.uid);
-    const data = await response.get();
-    if (data) {
-      setUserData(data.data());
+      if (!user.emailVerified) {
+        return;
+      }
+
+      const usersRef = firestore().collection("users");
+      usersRef
+        .where("email", "==", user.email)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.empty) {
+            usersRef
+              .doc(auth().currentUser.uid)
+              .set({
+                fullName: user.displayName,
+                username: user.displayName,
+                email: user.email,
+                phone: user.phoneNumber,
+                imgUrl: user.photoURL,
+                createdAt: firestore.FieldValue.serverTimestamp(),
+                myNetwork: [],
+              })
+              .then(() => {
+                console.log("User data added to DB");
+                Toast.show({
+                  type: "success",
+                  text1: "Welcome to Instagram",
+                  text2: "User account created & signed in!",
+                });
+              });
+          }
+        });
     }
-  };
+  }, [user]);
+
+  // const fetchUserData = async () => {
+  //   const response = firestore().collection("users").doc(user.uid);
+  //   const data = await response.get();
+  //   if (data) {
+  //     setUserData(data.data());
+  //   }
+  // };
 
   // Handle user state changes
   const onAuthStateChanged = (user) => {

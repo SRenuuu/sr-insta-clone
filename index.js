@@ -4,7 +4,6 @@ import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import { registerRootComponent } from "expo";
 
 import App from "./App";
-import Login from "./src/components/Login";
 
 const theme = {
   ...DefaultTheme,

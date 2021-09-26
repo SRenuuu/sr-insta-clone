@@ -17,13 +17,13 @@ import Toast from "react-native-toast-message";
 import * as ImagePicker from "react-native-image-picker";
 
 const Signup = () => {
-  const [photo, setPhoto] = React.useState();
-  const [fullName, setFullName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [phone, setPhone] = React.useState("");
-  const [isValidated, setIsValidated] = React.useState(false);
+  const [photo, setPhoto] = useState();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isValidated, setIsValidated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(0);
 
