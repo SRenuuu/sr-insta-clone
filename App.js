@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Button,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import { NativeRouter, Route, Link } from "react-router-native";
-import Login from "./src/Login";
-import Signup from "./src/Signup";
+import { BottomNavigation } from "react-native-paper";
+import Login from "./src/components/Login";
+import Signup from "./src/components/Signup";
 import Toast, {
   SuccessToast,
   ErrorToast,
@@ -10,7 +18,11 @@ import Toast, {
 } from "react-native-toast-message";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-import Home from "./src/Home";
+import Home from "./src/components/Home";
+import NewPost from "./src/components/NewPost";
+import Icon from "react-native-vector-icons/Entypo";
+import Network from "./src/components/Network";
+import Profile from "./src/components/Profile";
 
 const toastConfig = {
   error: (props) => (
@@ -53,18 +65,65 @@ const toastConfig = {
 const App = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  const [userData, setUserData] = useState();
+  const [refreshCount, setRefreshCount] = useState(0);
+  // const [userData, setUserData] = useState();
+
+  const handleRefreshCount = () => {
+    setRefreshCount(refreshCount + 1);
+  };
+
+  const [index, setIndex] = React.useState(0);
+  const [routes, setRoutes] = React.useState([]);
+
+  useEffect(() => {
+    setRoutes([
+      {
+        key: "home",
+        title: "Home",
+        icon: "home",
+        color: "white",
+        refreshCount: refreshCount,
+      },
+      {
+        key: "network",
+        title: "Network",
+        icon: "account-group",
+        color: "white",
+      },
+      {
+        key: "newPost",
+        title: "New Post",
+        icon: "plus-circle",
+        color: "white",
+        handleRefreshCount: handleRefreshCount,
+      },
+      {
+        key: "profile",
+        title: "My Profile",
+        icon: "account",
+        color: "white",
+      },
+    ]);
+  }, [refreshCount]);
+
+  const renderScene = BottomNavigation.SceneMap({
+    home: Home,
+    network: Network,
+    newPost: NewPost,
+    profile: Profile,
+  });
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     fetchUserData();
+  //   }
+  //   return setUserData([]);
+  // }, [user]);
 
   const fetchUserData = async () => {
     const response = firestore().collection("users").doc(user.uid);
@@ -85,14 +144,24 @@ const App = () => {
   if (!user) {
     return (
       <>
+        <Toast
+          config={toastConfig}
+          ref={(ref) => Toast.setRef(ref)}
+          style={styles.elevatedElement}
+        />
+
+        <StatusBar
+          animated={true}
+          backgroundColor="white"
+          barStyle="dark-content"
+        />
+
         <NativeRouter>
-          <View style={styles.container}>
+          <View style={styles.containerFluid}>
             <Route path="/signup" component={Signup} />
             <Route exact path="/" component={Login} />
           </View>
         </NativeRouter>
-
-        <Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
       </>
     );
   }
@@ -133,34 +202,39 @@ const App = () => {
   //   }
   // };
 
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'music', title: 'Music', icon: 'queue-music' },
-    { key: 'albums', title: 'Albums', icon: 'album' },
-    { key: 'recents', title: 'Recents', icon: 'history' },
-  ]);
-
-  const renderScene = BottomNavigation.SceneMap({
-    music: MusicRoute,
-    albums: AlbumsRoute,
-    recents: RecentsRoute,
-  });
-
   return (
     <>
-      <NativeRouter>
+      {/* <NativeRouter>
         <View style={styles.containerFluid}>
           <Route path="/" component={() => <Home userData={userData} />} />
           <Route path="/my-profile" component={Signup} />
           <Route path="/messaging" component={Signup} />
         </View>
-      </NativeRouter>
+      </NativeRouter> */}
 
       <Toast
         config={toastConfig}
         ref={(ref) => Toast.setRef(ref)}
         style={styles.elevatedElement}
       />
+
+      <SafeAreaView style={styles.containerFluid}>
+        <StatusBar
+          animated={true}
+          backgroundColor="white"
+          barStyle="dark-content"
+        />
+
+        {/* App body */}
+        <BottomNavigation
+          sceneAnimationEnabled={false}
+          navigationState={{ index, routes }}
+          onIndexChange={setIndex}
+          renderScene={renderScene}
+          inactiveColor="#cccccc"
+          activeColor="black"
+        />
+      </SafeAreaView>
     </>
   );
 };
@@ -177,11 +251,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: 0,
     paddingHorizontal: 0,
+    backgroundColor: "white",
   },
 
   elevatedElement: {
-    zIndex: 9, // ios
-    elevation: 9, // android
+    zIndex: 5, // ios
+    elevation: 5, // android
   },
 });
 
