@@ -148,6 +148,12 @@ android {
         }
     }
     signingConfigs {
+        release {
+            storeFile file('sr-insta-key.keystore')
+            storePassword 'asdertfgh123'
+            keyAlias 'sr-insta'
+            keyPassword 'asdertfgh123'
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
